@@ -1,4 +1,4 @@
-import { countVehicles, findVehicles } from "../repositories/vehicleRepository.js";
+import { countVehicles, createVehicle, findVehicles } from "../repositories/vehicleRepository.js";
 
 const toNumber = (value) => (value === undefined ? undefined : Number(value));
 
@@ -50,4 +50,26 @@ export const searchVehicles = async (query) => {
   const [items, total] = await Promise.all([findVehicles(filter, sort, skip, limit), countVehicles(filter)]);
 
   return { items, total, page, limit };
+};
+
+export const createVehicleListing = async (payload) => {
+  const data = {
+    brand: payload.brand,
+    model: payload.model,
+    vehicleType: payload.vehicleType,
+    year: payload.year,
+    price: payload.price,
+    mileage: payload.mileage ?? 0,
+    fuelType: payload.fuelType ?? "other",
+    transmission: payload.transmission ?? "other",
+    condition: payload.condition,
+    showroomLocation: payload.showroomLocation,
+    description: payload.description,
+    images: payload.images ?? [],
+    ownerCount: payload.ownerCount ?? 0,
+    isBrandNew: payload.isBrandNew ?? false,
+    status: payload.status ?? "available",
+  };
+
+  return createVehicle(data);
 };
