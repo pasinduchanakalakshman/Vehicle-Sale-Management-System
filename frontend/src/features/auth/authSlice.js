@@ -8,15 +8,29 @@ const initialState = {
   error: null,
 };
 
-export const register = createAsyncThunk("auth/register", async (payload) => {
-  const { data } = await api.post("/api/auth/register", payload);
-  return data;
-});
+export const register = createAsyncThunk(
+  "auth/register",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post("/api/auth/register", payload);
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Registration failed");
+    }
+  }
+);
 
-export const login = createAsyncThunk("auth/login", async (payload) => {
-  const { data } = await api.post("/api/auth/login", payload);
-  return data;
-});
+export const login = createAsyncThunk(
+  "auth/login",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post("/api/auth/login", payload);
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Login failed");
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -32,6 +46,7 @@ const authSlice = createSlice({
     builder
       .addCase(register.pending, (state) => {
         state.status = "loading";
+        state.error = null;
       })
       .addCase(register.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -41,10 +56,11 @@ const authSlice = createSlice({
       })
       .addCase(register.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       })
       .addCase(login.pending, (state) => {
         state.status = "loading";
+        state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -54,7 +70,7 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       });
   },
 });
