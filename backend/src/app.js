@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRouter from "./routes/auth.js";
+import adminRouter from "./routes/admin.js";
 import customersRouter from "./routes/customers.js";
 import managersRouter from "./routes/managers.js";
 import ownersRouter from "./routes/owners.js";
@@ -18,6 +19,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/admin", adminRouter);
 app.use("/api/customers", customersRouter);
 app.use("/api/managers", managersRouter);
 app.use("/api/owners", ownersRouter);
