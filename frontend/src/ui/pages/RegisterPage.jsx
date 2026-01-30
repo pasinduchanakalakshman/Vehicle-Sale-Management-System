@@ -1,15 +1,27 @@
 import { useState } from "react";
-import { useAppDispatch } from "../../app/hooks.js";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../app/hooks.js";
 import { register } from "../../features/auth/authSlice.js";
 
 export default function RegisterPage() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { status, error } = useAppSelector((state) => state.auth);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [success, setSuccess] = useState(null);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    dispatch(register(form));
+    setSuccess(null);
+    try {
+      await dispatch(register(form)).unwrap();
+      setSuccess("Account created. You can log in now.");
+      setForm({ name: "", email: "", password: "" });
+      setTimeout(() => navigate("/login"), 800);
+    } catch {
+      // Errors are handled in the store
+    }
   };
 
   return (
@@ -48,9 +60,15 @@ export default function RegisterPage() {
             className="input"
           />
         </label>
-        <button className="btn-primary" type="submit">
-          Register
+        <button
+          className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
+          type="submit"
+          disabled={status === "loading"}
+        >
+          {status === "loading" ? "Creating..." : "Register"}
         </button>
+        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {success ? <p className="text-sm text-green-600">{success}</p> : null}
       </form>
     </section>
   );
